@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { Oldenburg } from "next/font/google";
+import {  Ubuntu } from "next/font/google";
 import "./globals.css";
 
-const oldenburgSans = Oldenburg({
-  variable: "--font-oldenburg-sans",
-  weight:['400'],
+const ubuntuFont = Ubuntu({
+  variable: "--font-sans",
+  weight: ['400'],
   subsets: ["latin"],
 });
 
@@ -22,7 +22,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${oldenburgSans.variable} antialiased`}
+        className={`${ubuntuFont.variable} antialiased`}
       >
         {children}
       </body>
