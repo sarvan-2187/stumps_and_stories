@@ -1,9 +1,12 @@
 import UnsubscribeClient from "./unsubscribe-client";
 
-export default function Page({
+export default async function Page({
     searchParams,
 }: {
-    searchParams: { token?: string };
+    searchParams: Promise<{ token?: string }>;
 }) {
-    return <UnsubscribeClient token={searchParams.token ?? null} />;
+    const params = await searchParams;
+    const token = params.token ?? null;
+
+    return <UnsubscribeClient token={token} />;
 }
