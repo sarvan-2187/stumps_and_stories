@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 "use client";
 
 import { useSearchParams } from "next/navigation";
@@ -36,23 +38,26 @@ export default function UnsubscribePage() {
     };
 
     return (
-        <div style={{ maxWidth: 500, margin: "4rem auto", textAlign: "center" }}>
-            <h1>Unsubscribe</h1>
+        <div className="flex flex-col gap-8 text-center py-12">
+            <h1 className="text-3xl md:text-7xl">Unsubscribe</h1>
 
             <p>
                 We’re sorry to see you go. Click the button below to unsubscribe from
                 future emails.
             </p>
 
-            <button
-                onClick={handleUnsubscribe}
-                disabled={loading}
-                style={{ padding: "10px 20px", marginTop: "20px" }}
-            >
-                {loading ? "Unsubscribing..." : "Unsubscribe"}
-            </button>
-
-            {message && <p style={{ marginTop: "20px" }}>{message}</p>}
+            <div>
+                <button
+                    onClick={handleUnsubscribe}
+                    disabled={loading}
+                    className="cursor-pointer bg-white/80 hover:bg-white text-black rounded-md p-2"
+                >
+                    {loading ? "Unsubscribing..." : "Unsubscribe"}
+                </button>
+            </div>
+            <div className="bg-white p-2">
+                {message && <p className="text-black">{message}</p>}
+            </div>
         </div>
     );
 }
