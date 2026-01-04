@@ -8,9 +8,27 @@
     - Node mailer
     - Google In App Passswords (for Emails)
 - SQL Queries (For Database)
-<img width="523" height="142" alt="image" src="https://github.com/user-attachments/assets/9a97aa62-86f2-4af6-be0f-86b5318820f3" />
-<img width="542" height="178" alt="image" src="https://github.com/user-attachments/assets/738151e7-b667-4f4f-8a36-3460ddbc9e4c" />
-<img width="606" height="174" alt="image" src="https://github.com/user-attachments/assets/0235ab68-1d50-42b6-90e8-57867bec539e" />
+```sql
+-- Creating the Table
+CREATE TABLE subscribers (
+  id SERIAL PRIMARY KEY,
+  email VARCHAR(100) UNIQUE NOT NULL,
+  is_active BOOLEAN DEFAULT TRUE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+```sql
+-- Creating the Table
+CREATE TABLE newsletters(
+  id SERIAL PRIMARY KEY,
+  title VARCHAR(200) NOT NULL,
+  content TEXT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  sent_at TIMESTAMP
+);
+```
+```sql
+-- Creating the Table
 CREATE TABLE unsubscribe_tokens (
   id SERIAL PRIMARY KEY,
   subscriber_id INT NOT NULL,
@@ -18,6 +36,6 @@ CREATE TABLE unsubscribe_tokens (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (subscriber_id) REFERENCES subscribers(id)
 );
-
+```
 
     
