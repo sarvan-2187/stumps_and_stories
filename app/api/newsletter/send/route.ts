@@ -1,9 +1,9 @@
-import { pool } from "@/lib/db";
 import { NextResponse } from "next/server";
-import crypto from "crypto";
+import { pool } from "@/lib/db";
 import { transporter } from "@/lib/mailer";
+import { marked } from "marked"; // Import the converter
 
-// --- 1. Reusable HTML Generator (Same as Newsletter) ---
+// Helper function to generate the HTML email
 const generateEmailHtml = (title: string, contentHtml: string, unsubscribeLink: string) => {
   return `
     <!DOCTYPE html>
@@ -17,6 +17,14 @@ const generateEmailHtml = (title: string, contentHtml: string, unsubscribeLink: 
         table, td { border-collapse: collapse; }
         img { border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; }
         
+        /* MARKDOWN SPECIFIC STYLES FOR EMAIL */
+        .markdown-body h1, .markdown-body h2, .markdown-body h3 { margin-top: 20px; margin-bottom: 10px; color: #111827; }
+        .markdown-body p { margin-bottom: 15px; }
+        .markdown-body ul, .markdown-body ol { margin-left: 20px; padding-left: 0; margin-bottom: 15px; }
+        .markdown-body li { margin-bottom: 5px; }
+        .markdown-body strong { font-weight: 700; color: #000; }
+        .markdown-body a { color: #2563eb; text-decoration: underline; }
+
         @media screen and (max-width: 600px) {
           .container { width: 100% !important; padding: 0 !important; }
           .content { padding: 20px !important; }
@@ -44,16 +52,18 @@ const generateEmailHtml = (title: string, contentHtml: string, unsubscribeLink: 
                   <h2 style="margin-top: 0; color: #111827; font-size: 20px; line-height: 1.4; border-bottom: 1px solid #e5e7eb; padding-bottom: 10px;">
                     ${title}
                   </h2>
-                  <div style="font-size: 16px; line-height: 1.6; color: #4b5563;">
-                    ${contentHtml}
+                  
+                  <div class="markdown-body" style="font-size: 16px; line-height: 1.6; color: #4b5563;">
+                    ${contentHtml} 
                   </div>
+
                 </td>
               </tr>
 
               <tr>
                 <td style="padding: 30px; text-align: center; background-color: #f9fafb; border-top: 1px solid #e5e7eb;">
                   <p style="margin: 0; font-size: 12px; color: #9ca3af; line-height: 1.5;">
-                    You are receiving this because you just subscribed.
+                    You received this because you are subscribed to Stumps & Stories.
                   </p>
                   <p style="margin: 10px 0 0 0; font-size: 12px;">
                     <a href="${unsubscribeLink}" style="color: #6b7280; text-decoration: underline;">
@@ -64,7 +74,7 @@ const generateEmailHtml = (title: string, contentHtml: string, unsubscribeLink: 
               </tr>
 
             </table>
-
+            
             <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
               <tr>
                 <td align="center" style="padding-top: 20px; color: #9ca3af; font-size: 12px;">
@@ -82,67 +92,55 @@ const generateEmailHtml = (title: string, contentHtml: string, unsubscribeLink: 
   `;
 };
 
-
 export async function POST(req: Request) {
   try {
-    const { email } = await req.json();
-
-    if (!email) {
-      return NextResponse.json({ error: "email is required" }, { status: 400 });
-    }
-
-    // 2. Database Operations (Insert User)
-    const insertSubscriberQuery = `
-      INSERT INTO subscribers (email, is_active) VALUES ($1, true)
-      ON CONFLICT (email) DO UPDATE SET is_active = true
-      RETURNING id
-    `;
-    const subscriberResult = await pool.query(insertSubscriberQuery, [email]);
-    const subscriberId = subscriberResult.rows[0].id;
-
-    // 3. Database Operations (Handle Token)
-    const tokenCheckQuery = `SELECT token FROM unsubscribe_tokens WHERE subscriber_id = $1`;
-    const tokenCheckResult = await pool.query(tokenCheckQuery, [subscriberId]);
-
-    let token: string;
-
-    if (tokenCheckResult.rowCount === 0) {
-      token = crypto.randomBytes(32).toString("hex");
-      await pool.query(
-        `INSERT INTO unsubscribe_tokens (subscriber_id, token) VALUES ($1, $2)`,
-        [subscriberId, token]
-      );
-    } else {
-      token = tokenCheckResult.rows[0].token;
-    }
-
-    const unsubscribeLink = `${process.env.APP_URL}/unsubscribe?token=${token}`;
-
-    // 4. Generate Welcome Email Content
-    const welcomeMessage = `
-      <p>You are now officially a part of <strong>Stumps & Stories</strong>.</p>
-      <p>You’ll receive hand-picked cricket stories, match insights, and history delivered straight to your inbox twice a week.</p>
-      <p style="margin-top: 20px;">Sit back, relax, and enjoy the game!</p>
-    `;
-
-    const htmlEmail = generateEmailHtml(
-      "Welcome to the Club!", 
-      welcomeMessage, 
-      unsubscribeLink
+    const newsletterRes = await pool.query(
+      `SELECT id, title, content FROM newsletters WHERE sent_at IS NULL ORDER BY created_at DESC LIMIT 1`
     );
 
-    // 5. Send Email
-    await transporter.sendMail({
-      from: `"Stumps & Stories" <${process.env.SMTP_USER}>`,
-      to: email,
-      subject: "Welcome to Stumps & Stories",
-      html: htmlEmail,
-    });
+    if (newsletterRes.rowCount === 0) {
+      return NextResponse.json({ skipped: true, reason: "No unsent newsletters" });
+    }
 
-    return NextResponse.json({ success: true });
+    const newsletter = newsletterRes.rows[0];
 
-  } catch (err) {
-    console.error("Subscribe API error:", err);
-    return NextResponse.json({ error: "Failed to Subscribe!" }, { status: 500 });
+    // --- CONVERT MARKDOWN TO HTML HERE ---
+    // This turns "**Bold**" into "<strong>Bold</strong>" and lists into <ul><li>...
+    const contentHtml = await marked.parse(newsletter.content); 
+
+    const subsRes = await pool.query(
+      `SELECT s.email, t.token 
+       FROM subscribers s 
+       JOIN unsubscribe_tokens t ON s.id = t.subscriber_id 
+       WHERE s.is_active = true`
+    );
+
+    if (subsRes.rowCount === 0) {
+      return NextResponse.json({ skipped: true, reason: "No active subscribers" });
+    }
+
+    for (const sub of subsRes.rows) {
+      const unsubscribeLink = `${process.env.APP_URL}/unsubscribe?token=${sub.token}`;
+      
+      // Pass the CONVERTED HTML, not the raw markdown
+      const htmlEmail = generateEmailHtml(newsletter.title, contentHtml, unsubscribeLink);
+
+      await transporter.sendMail({
+        from: `"Stumps & Stories" <${process.env.SMTP_USER}>`,
+        to: sub.email,
+        subject: newsletter.title,
+        html: htmlEmail,
+      });
+    }
+
+    await pool.query(
+      `UPDATE newsletters SET sent_at = NOW() WHERE id = $1`,
+      [newsletter.id]
+    );
+
+    return NextResponse.json({ success: true, sent_to: subsRes.rowCount });
+  } catch (error) {
+    console.error("Send Newsletter Error:", error);
+    return NextResponse.json({ error: "Failed to send newsletter" }, { status: 500 });
   }
 }
