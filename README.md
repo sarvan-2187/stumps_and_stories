@@ -2,9 +2,9 @@
 
 #### Architecture Diagram:
 ![architecture](https://github.com/user-attachments/assets/c04de775-483b-4080-bf82-d7e9f1c5936d)
-
+---
 #### Description: This project is an attempt to make a Completely Automated Newsletter for Cricket News of Past 72hrs
-
+---
 #### How It Works
 
 1. **RSS Fetching**
