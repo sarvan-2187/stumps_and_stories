@@ -27,7 +27,7 @@
 5. **Automation**
    - Vercel Cron triggers generation and sending
    - Runs every **Wednesday & Saturday at 12:00 PM IST**
-
+---
 #### Tech Stacks: 
 - Next.js (for both frontend & backend)
 - Neon serverless (for Database)
@@ -38,7 +38,7 @@
 - ESPNCricInfo, CricTracker (for RSS Feeds)
 - Marked (for Rendering the Markdown Content)
 - Google Fonts & Acceternity UI (for UI Components)
-
+---
 #### SQL Queries (For Database):
 ```sql
 -- Creating the Table
