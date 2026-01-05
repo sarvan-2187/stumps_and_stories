@@ -10,7 +10,7 @@
     - Groq Meta Llama AI (for Summarizing RSS Feeds)
     - ESPNCricInfo, CricTracker (for RSS Feeds)
     - Marked (for Rendering the Markdown Content)
-- SQL Queries (For Database)
+#### SQL Queries (For Database)
 ```sql
 -- Creating the Table
 CREATE TABLE subscribers (
