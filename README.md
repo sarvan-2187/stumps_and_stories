@@ -7,6 +7,9 @@
     - Vercel CRON Jobs
     - Node mailer
     - Google In App Passswords (for Emails)
+    - Groq Meta Llama AI (for Summarizing RSS Feeds)
+    - ESPNCricInfo, CricTracker (for RSS Feeds)
+    - Marked (for Rendering the Markdown Content)
 - SQL Queries (For Database)
 ```sql
 -- Creating the Table
