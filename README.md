@@ -2,7 +2,7 @@
 
 <img width="1898" height="912" alt="image" src="https://github.com/user-attachments/assets/0dd357c3-9b63-4211-a12d-b63b1fef6327" />
 
-#### Description: The following project is an attempt to make a Newsletter for cricket using the following Tech Stacks
+#### Description: The following project is an attempt to make a Completely Automated Newsletter for Cricket News of Past 72hrs
 #### Tech Stacks: 
     - Next.js (for both frontend & backend)
     - Neon serverless (for Database)
