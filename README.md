@@ -1,5 +1,5 @@
 ## Stumps & Stories
----
+
 <img width="1898" height="912" alt="image" src="https://github.com/user-attachments/assets/0dd357c3-9b63-4211-a12d-b63b1fef6327" />
 
 #### Description: The following project is an attempt to make a Newsletter for cricket using the following Tech Stacks
@@ -12,6 +12,7 @@
     - Groq Meta Llama AI (for Summarizing RSS Feeds)
     - ESPNCricInfo, CricTracker (for RSS Feeds)
     - Marked (for Rendering the Markdown Content)
+    - Google Fonts & Acceternity UI (for UI Components)
 #### SQL Queries (For Database):
 ```sql
 -- Creating the Table
