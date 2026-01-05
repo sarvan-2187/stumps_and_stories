@@ -4,8 +4,8 @@
 #### Tech Stacks: 
     - Next.js (for both frontend & backend)
     - Neon serverless (for Database)
-    - Vercel CRON Jobs
-    - Node mailer
+    - Vercel CRON Jobs (for Invoking Pipelines and Sending the Emails)
+    - Node mailer (for Emails)
     - Google In App Passswords (for Emails)
     - Groq Meta Llama AI (for Summarizing RSS Feeds)
     - ESPNCricInfo, CricTracker (for RSS Feeds)
