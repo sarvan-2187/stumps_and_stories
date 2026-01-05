@@ -3,8 +3,6 @@
 #### Architecture Diagram:
 ![architecture](https://github.com/user-attachments/assets/c04de775-483b-4080-bf82-d7e9f1c5936d)
 
-<img width="1898" height="912" alt="image" src="https://github.com/user-attachments/assets/0dd357c3-9b63-4211-a12d-b63b1fef6327" />
-
 #### Description: This project is an attempt to make a Completely Automated Newsletter for Cricket News of Past 72hrs
 #### Tech Stacks: 
     - Next.js (for both frontend & backend)
