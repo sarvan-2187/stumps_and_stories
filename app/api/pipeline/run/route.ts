@@ -5,8 +5,9 @@ export const revalidate = 0;
 export async function GET(req: Request) {
   try {
     const isCron = req.headers.get("x-vercel-cron");
+    const isManualRun = req.headers.get("x-vercel-deployment-url"); 
 
-    if (isCron !== "1") {
+    if (isCron !== "1" && !isManualRun) {
       return new Response("Unauthorized", { status: 401 });
     }
 

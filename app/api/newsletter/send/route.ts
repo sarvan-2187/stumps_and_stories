@@ -96,9 +96,10 @@ const generateEmailHtml = (title: string, contentHtml: string, unsubscribeLink: 
 export async function GET(req: Request) {
   try {
     console.log("EMAIL CRON TRIGGERED");
+    const isManualRun = req.headers.get("x-vercel-deployment-url"); 
     const isCron = req.headers.get("x-vercel-cron");
 
-    if (isCron !== "1") {
+    if (isCron !== "1" && !isManualRun) {
       return new Response("Unauthorized", { status: 401 });
     }
 
