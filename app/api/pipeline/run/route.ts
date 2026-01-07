@@ -14,28 +14,49 @@ export async function GET(req: Request) {
     const baseUrl = `https://${host}`;
     console.log("PIPELINE BASE URL:", baseUrl);
 
-    // 1️⃣ Fetch RSS
-    const rssRes = await fetch(`${baseUrl}/api/rss/fetch`);
-    const rssData = await rssRes.json();
+    /* ---------------- RSS FETCH ---------------- */
 
-    if (!rssData.success) {
-      throw new Error("RSS fetch failed");
+    const rssRes = await fetch(`${baseUrl}/api/rss/fetch`);
+    const rssText = await rssRes.text();
+
+    console.log("PIPELINE: rss/fetch status:", rssRes.status);
+    console.log("PIPELINE: rss/fetch preview:", rssText.slice(0, 120));
+
+    if (!rssText.trim().startsWith("{")) {
+      throw new Error("rss/fetch returned non-JSON (HTML)");
     }
 
-    // 2️⃣ Summarize with AI
+    const rssData = JSON.parse(rssText);
+
+    if (!rssData.success) {
+      throw new Error("rss/fetch success=false");
+    }
+
+    /* ---------------- RSS SUMMARIZE ---------------- */
+
     const aiRes = await fetch(`${baseUrl}/api/rss/summarize`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ items: rssData.items }),
     });
 
-    const aiData = await aiRes.json();
+    const aiText = await aiRes.text();
 
-    if (!aiData.content) {
-      throw new Error("AI summarization returned empty content");
+    console.log("PIPELINE: rss/summarize status:", aiRes.status);
+    console.log("PIPELINE: rss/summarize preview:", aiText.slice(0, 120));
+
+    if (!aiText.trim().startsWith("{")) {
+      throw new Error("rss/summarize returned non-JSON (HTML)");
     }
 
-    // 3️⃣ Store newsletter
+    const aiData = JSON.parse(aiText);
+
+    if (!aiData.content) {
+      throw new Error("rss/summarize returned empty content");
+    }
+
+    /* ---------------- STORE NEWSLETTER ---------------- */
+
     const storeRes = await fetch(`${baseUrl}/api/newsletter/store`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -45,9 +66,13 @@ export async function GET(req: Request) {
       }),
     });
 
+    const storeText = await storeRes.text();
+
+    console.log("PIPELINE: newsletter/store status:", storeRes.status);
+    console.log("PIPELINE: newsletter/store preview:", storeText.slice(0, 120));
+
     if (!storeRes.ok) {
-      const errText = await storeRes.text();
-      throw new Error(`Store failed: ${errText}`);
+      throw new Error(`newsletter/store failed`);
     }
 
     console.log("PIPELINE: completed successfully");

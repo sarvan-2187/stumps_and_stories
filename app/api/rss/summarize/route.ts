@@ -8,14 +8,30 @@ const groq = new Groq({
 });
 
 export async function POST(req: Request) {
-  try {
-    const { items } = await req.json();
+  console.log("RSS_SUMMARIZE: started");
 
-    if (!items || items.length === 0) {
+  try {
+    const bodyText = await req.text();
+
+    if (!bodyText.trim().startsWith("{")) {
+      console.error("RSS_SUMMARIZE: non-JSON request body", bodyText.slice(0, 100));
       return NextResponse.json({
         content: "No major updates in the past 72 hours.",
+        debug: "non-json-request",
       });
     }
+
+    const { items } = JSON.parse(bodyText);
+
+    if (!items || items.length === 0) {
+      console.log("RSS_SUMMARIZE: no items");
+      return NextResponse.json({
+        content: "No major updates in the past 72 hours.",
+        debug: "empty-items",
+      });
+    }
+
+    console.log(`RSS_SUMMARIZE: summarizing ${items.length} items`);
 
     const facts = items
       .map(
@@ -30,33 +46,29 @@ export async function POST(req: Request) {
         {
           role: "system",
           content:
-            "You are a professional cricket news editor. Summarize ONLY the provided facts. Do not add, assume, or invent information.",
+            "You are a professional cricket news editor. Summarize ONLY the provided facts.",
         },
         {
           role: "user",
-          content: `
-Below are VERIFIED cricket headlines from ESPNcricinfo and CricTracker
-from the past 72 hours.
-
-${facts}
-
-Create a structured cricket news report.
-If a league has no meaningful updates, write: "No major updates."
-`,
+          content: facts,
         },
       ],
       temperature: 0.3,
       max_tokens: 900,
     });
 
+    console.log("RSS_SUMMARIZE: completed");
+
     return NextResponse.json({
       content: completion.choices[0].message.content,
+      source: "rss/summarize",
     });
   } catch (error) {
-    console.error("RSS Summarize Error:", error);
-    return NextResponse.json(
-      { error: "Failed to summarize RSS data" },
-      { status: 500 }
-    );
+    console.error("RSS_SUMMARIZE: error", error);
+    return NextResponse.json({
+      content: "No major updates in the past 72 hours.",
+      source: "rss/summarize",
+      debug: "exception",
+    });
   }
 }
