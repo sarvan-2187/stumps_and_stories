@@ -1,11 +1,10 @@
 import { NextResponse } from "next/server";
 import { pool } from "@/lib/db";
 import { transporter } from "@/lib/mailer";
-import { marked } from "marked"; // Import the converter
+import { marked } from "marked"; 
 
 export const revalidate = 0;
 
-// Helper function to generate the HTML email
 const generateEmailHtml = (title: string, contentHtml: string, unsubscribeLink: string) => {
   return `
     <!DOCTYPE html>
@@ -94,38 +93,56 @@ const generateEmailHtml = (title: string, contentHtml: string, unsubscribeLink: 
   `;
 };
 
-export async function POST(req: Request) {
+export async function GET(req: Request) {
   try {
+    console.log("EMAIL CRON TRIGGERED");
+
+    // ✅ Derive base URL safely (cron-safe)
+    const host = req.headers.get("host");
+    if (!host) throw new Error("Host header missing");
+
+    const baseUrl = `https://${host}`;
+
+    // 1️⃣ Get latest unsent newsletter
     const newsletterRes = await pool.query(
-      `SELECT id, title, content FROM newsletters WHERE sent_at IS NULL ORDER BY created_at DESC LIMIT 1`
+      `SELECT id, title, content
+       FROM newsletters
+       WHERE sent_at IS NULL
+       ORDER BY created_at DESC
+       LIMIT 1`
     );
 
     if (newsletterRes.rowCount === 0) {
-      return NextResponse.json({ skipped: true, reason: "No unsent newsletters" });
+      return NextResponse.json({ skipped: true });
     }
 
     const newsletter = newsletterRes.rows[0];
 
-    // --- CONVERT MARKDOWN TO HTML HERE ---
-    // This turns "**Bold**" into "<strong>Bold</strong>" and lists into <ul><li>...
-    const contentHtml = await marked.parse(newsletter.content); 
+    // 2️⃣ Convert Markdown → HTML
+    const contentHtml = await marked.parse(newsletter.content);
 
+    // 3️⃣ Get active subscribers
     const subsRes = await pool.query(
-      `SELECT s.email, t.token 
-       FROM subscribers s 
-       JOIN unsubscribe_tokens t ON s.id = t.subscriber_id 
+      `SELECT s.email, t.token
+       FROM subscribers s
+       JOIN unsubscribe_tokens t
+         ON s.id = t.subscriber_id
        WHERE s.is_active = true`
     );
 
     if (subsRes.rowCount === 0) {
-      return NextResponse.json({ skipped: true, reason: "No active subscribers" });
+      return NextResponse.json({ skipped: true });
     }
 
+    // 4️⃣ Send emails
     for (const sub of subsRes.rows) {
-      const unsubscribeLink = `${process.env.APP_URL}/unsubscribe?token=${sub.token}`;
-      
-      // Pass the CONVERTED HTML, not the raw markdown
-      const htmlEmail = generateEmailHtml(newsletter.title, contentHtml, unsubscribeLink);
+      const unsubscribeLink = `${baseUrl}/unsubscribe?token=${sub.token}`;
+
+      const htmlEmail = generateEmailHtml(
+        newsletter.title,
+        contentHtml,
+        unsubscribeLink
+      );
 
       await transporter.sendMail({
         from: `"Stumps & Stories" <${process.env.SMTP_USER}>`,
@@ -135,14 +152,23 @@ export async function POST(req: Request) {
       });
     }
 
+    // 5️⃣ Mark newsletter as sent
     await pool.query(
       `UPDATE newsletters SET sent_at = NOW() WHERE id = $1`,
       [newsletter.id]
     );
 
-    return NextResponse.json({ success: true, sent_to: subsRes.rowCount });
+    console.log("EMAIL CRON COMPLETED");
+
+    return NextResponse.json({
+      success: true,
+      sent_to: subsRes.rowCount,
+    });
   } catch (error) {
     console.error("Send Newsletter Error:", error);
-    return NextResponse.json({ error: "Failed to send newsletter" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to send newsletter" },
+      { status: 500 }
+    );
   }
 }
