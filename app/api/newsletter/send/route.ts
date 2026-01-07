@@ -96,11 +96,12 @@ const generateEmailHtml = (title: string, contentHtml: string, unsubscribeLink: 
 export async function GET(req: Request) {
   try {
     console.log("EMAIL CRON TRIGGERED");
-    const secret = req.headers.get("x-cron-secret");
+    const isCron = req.headers.get("x-vercel-cron");
 
-    if (secret !== process.env.CRON_SECRET) {
+    if (isCron !== "1") {
       return new Response("Unauthorized", { status: 401 });
     }
+
 
     const host = req.headers.get("host");
     if (!host) throw new Error("Host header missing");

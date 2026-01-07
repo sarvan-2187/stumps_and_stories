@@ -2,17 +2,11 @@
   "crons": [
     {
       "path": "/api/pipeline/run",
-      "schedule": "0 5 * * 3,6",
-      "headers": {
-        "x-cron-secret": "@cron_secret"
-      }
+      "schedule": "0 5 * * 3,6"
     },
     {
       "path": "/api/newsletter/send",
-      "schedule": "0 7 * * 3,6",
-      "headers": {
-        "x-cron-secret": "@cron_secret"
-      }
+      "schedule": "0 7 * * 3,6"
     }
   ]
 }
