@@ -96,14 +96,17 @@ const generateEmailHtml = (title: string, contentHtml: string, unsubscribeLink: 
 export async function GET(req: Request) {
   try {
     console.log("EMAIL CRON TRIGGERED");
+    const secret = req.headers.get("x-cron-secret");
 
-    // ✅ Derive base URL safely (cron-safe)
+    if (secret !== process.env.CRON_SECRET) {
+      return new Response("Unauthorized", { status: 401 });
+    }
+
     const host = req.headers.get("host");
     if (!host) throw new Error("Host header missing");
 
     const baseUrl = `https://${host}`;
 
-    // 1️⃣ Get latest unsent newsletter
     const newsletterRes = await pool.query(
       `SELECT id, title, content
        FROM newsletters
@@ -118,10 +121,8 @@ export async function GET(req: Request) {
 
     const newsletter = newsletterRes.rows[0];
 
-    // 2️⃣ Convert Markdown → HTML
     const contentHtml = await marked.parse(newsletter.content);
 
-    // 3️⃣ Get active subscribers
     const subsRes = await pool.query(
       `SELECT s.email, t.token
        FROM subscribers s
@@ -134,7 +135,6 @@ export async function GET(req: Request) {
       return NextResponse.json({ skipped: true });
     }
 
-    // 4️⃣ Send emails
     for (const sub of subsRes.rows) {
       const unsubscribeLink = `${baseUrl}/unsubscribe?token=${sub.token}`;
 
@@ -152,7 +152,6 @@ export async function GET(req: Request) {
       });
     }
 
-    // 5️⃣ Mark newsletter as sent
     await pool.query(
       `UPDATE newsletters SET sent_at = NOW() WHERE id = $1`,
       [newsletter.id]

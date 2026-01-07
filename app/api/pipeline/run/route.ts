@@ -4,6 +4,11 @@ export const revalidate = 0;
 
 export async function GET(req: Request) {
   try {
+    const secret = req.headers.get("x-cron-secret");
+
+    if (secret !== process.env.CRON_SECRET) {
+      return new Response("Unauthorized", { status: 401 });
+    }
     console.log("PIPELINE: started");
 
     const host = req.headers.get("host");
