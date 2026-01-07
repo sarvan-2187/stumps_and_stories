@@ -102,7 +102,6 @@ export async function GET(req: Request) {
       return new Response("Unauthorized", { status: 401 });
     }
 
-
     const host = req.headers.get("host");
     if (!host) throw new Error("Host header missing");
 
