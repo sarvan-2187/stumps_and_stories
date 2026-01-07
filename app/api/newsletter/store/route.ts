@@ -1,6 +1,8 @@
 import { pool } from "@/lib/db";
 import { NextResponse } from "next/server";
 
+export const revalidate = 0;
+
 export async function POST(req: Request) {
   try {
     const { title, content } = await req.json();

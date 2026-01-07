@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { Groq } from "groq-sdk";
 
+export const revalidate = 0;
+
 const groq = new Groq({
   apiKey: process.env.GROQ_API_KEY,
 });

@@ -3,7 +3,6 @@ import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { transporter } from "@/lib/mailer";
 
-// --- 1. Reusable HTML Generator (Same as Newsletter) ---
 const generateEmailHtml = (title: string, contentHtml: string, unsubscribeLink: string) => {
   return `
     <!DOCTYPE html>

@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import Parser from "rss-parser";
 import { deduplicateItems, classifyLeague } from "@/lib/rss-utils";
 
+export const revalidate = 0;
+
 const parser = new Parser();
 
 const RSS_FEEDS = [

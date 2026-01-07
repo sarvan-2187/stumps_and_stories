@@ -3,6 +3,8 @@ import { pool } from "@/lib/db";
 import { transporter } from "@/lib/mailer";
 import { marked } from "marked"; // Import the converter
 
+export const revalidate = 0;
+
 // Helper function to generate the HTML email
 const generateEmailHtml = (title: string, contentHtml: string, unsubscribeLink: string) => {
   return `
