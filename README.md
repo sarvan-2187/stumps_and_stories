@@ -1,4 +1,4 @@
-## Stumps & Stories
+## Stumps & Stories: Automated Cricket Newsletter Platform
 
 #### Architecture Diagram:
 ![architecture](https://github.com/user-attachments/assets/c04de775-483b-4080-bf82-d7e9f1c5936d)
