@@ -2,11 +2,11 @@
   "crons": [
     {
       "path": "/api/pipeline/run",
-      "schedule": "0 16 * * 3,6"
+      "schedule": "0 12 * * 3,6"
     },
     {
       "path": "/api/newsletter/send",
-      "schedule": "0 18 * * 3,6"
+      "schedule": "0 14 * * 3,6"
     }
   ]
 }
