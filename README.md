@@ -70,6 +70,30 @@ CREATE TABLE unsubscribe_tokens (
 );
 ```
 
+#### How to run in local Machine ?
 
+```
+git clone 
+```
 
-    
+Then
+
+```
+cd stumps_and_stories
+```
+
+Then
+
+```
+npm install
+```
+
+Then,
+
+Fill in the environment variables 
+
+Finally
+```
+npm run dev
+```
+
