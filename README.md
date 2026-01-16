@@ -92,6 +92,15 @@ Then,
 
 Fill in the environment variables 
 
+```
+DATABASE_URL='your-db-url-here'
+SMTP_USER=your-gmail-here
+SMTP_PASS=your-in-app-password-here
+GROQ_API_KEY=your-groq-api-key-here
+APP_URL=http://localhost:3000/
+CRON_SECRET=your-cron-secret-here
+```
+
 Finally
 ```
 npm run dev
