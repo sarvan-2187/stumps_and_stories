@@ -73,7 +73,7 @@ CREATE TABLE unsubscribe_tokens (
 #### How to run in local Machine ?
 
 ```
-git clone 
+git clone https://github.com/sarvan-2187/stumps_and_stories.git
 ```
 
 Then
