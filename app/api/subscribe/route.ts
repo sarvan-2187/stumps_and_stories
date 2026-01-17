@@ -3,6 +3,13 @@ import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { transporter } from "@/lib/mailer";
 
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type",
+};
+
+
 const generateEmailHtml = (title: string, contentHtml: string, unsubscribeLink: string) => {
   return `
     <!DOCTYPE html>
