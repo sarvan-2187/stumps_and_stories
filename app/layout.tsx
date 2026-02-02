@@ -1,13 +1,18 @@
 import type { Metadata } from "next";
-import {  Ubuntu } from "next/font/google";
+import { Google_Sans, Tangerine } from "next/font/google";
 import "./globals.css";
 
-const ubuntuFont = Ubuntu({
-  variable: "--font-sans",
+const googleSans = Google_Sans({
+  variable: "--font-sans-google",
   weight: ['400'],
   subsets: ["latin"],
-});
+})
 
+const tagerineSans = Tangerine({
+  variable: "--font-sans-tangerine",
+  weight: ['400'],
+  subsets: ["latin"],
+})
 
 export const metadata: Metadata = {
   title: "Stumps & Stories",
@@ -43,7 +48,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${ubuntuFont.variable} antialiased`}
+        className={`${googleSans.variable} ${tagerineSans.variable} antialiased`}
       >
         {children}
       </body>

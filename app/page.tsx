@@ -6,7 +6,7 @@ import { HowitWorks } from "./sections/HowitWorks";
 
 export default function Home() {
   return (
-    <div className="bg-black text-white px-8 md:px-24">
+    <div className="bg-black text-white px-4 md:px-24">
       <div className="py-70 md:py-8">
         <Hero/>
       </div>

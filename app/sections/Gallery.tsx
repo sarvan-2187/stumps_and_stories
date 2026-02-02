@@ -21,7 +21,7 @@ const Gallery = () => {
                 {images.map((src, i) => (
                     <div
                         key={i}
-                        className="relative h-56 sm:h-64 border border-cyan-800/50 rounded-md overflow-hidden"
+                        className="relative h-60 sm:h-64 border border-cyan-800/50 rounded-md overflow-hidden"
                     >
                         <Image
                             src={src}
@@ -33,7 +33,7 @@ const Gallery = () => {
                 ))}
             </div>
             
-            <div className="hidden lg:grid grid-cols-6 grid-rows-4 gap-4 h-[70vh]">
+            <div className="hidden lg:grid grid-cols-6 grid-rows-4 gap-4 h-[72vh]">
                 <div className="relative col-span-2 row-span-3 border border-cyan-800/50 rounded-md overflow-hidden">
                     <Image src={images[0]} alt="IPL" fill className="object-cover" priority />
                 </div>
